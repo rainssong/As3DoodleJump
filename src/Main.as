@@ -6,6 +6,7 @@ package
 	import flash.events.Event;
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
+	import flash.text.TextField;
 	import flash.ui.Keyboard;
 	import flash.utils.Dictionary;
 	import flash.utils.Timer;
@@ -20,7 +21,7 @@ package
 	public class Main extends Sprite
 	{
 		private const V0:Number = -20;
-		private const S:Number = 20*20/2;
+		private const S:Number = 20 * 20 / 2;
 		private var doodle:Doodle;
 		private var timer:Timer;
 		private var time:Number;
@@ -29,6 +30,7 @@ package
 		private var keyDictionary:Dictionary;
 		private const GRAVITY:Number = 1;
 		private var score:int;
+		private var scoreText:TextField
 		private var movingStickArr:Vector.<MovingStick>;
 		private var sceneLayer:Sprite;
 		private var charLayer:Sprite;
@@ -56,6 +58,8 @@ package
 			addChild(uiLayer = new Sprite());
 			keyDictionary = new Dictionary();
 			doodle = new Doodle();
+			scoreText = new TextField;
+			uiLayer.addChild(scoreText);
 			
 			createSticks();
 			
@@ -84,7 +88,7 @@ package
 			//addSticks();
 		}
 		
-		private function startGame():void 
+		private function startGame():void
 		{
 			
 			addEventListener(Event.ENTER_FRAME, onEnterFrame);
@@ -110,47 +114,56 @@ package
 			if (keyDictionary[Keyboard.RIGHT])
 				doodle.hVelocity += 4;
 			
-			
 			doodle.x += doodle.hVelocity;
-			if (doodle.y <= stage.stageHeight-S-35 && doodle.vVelocity < 0)
+			if (doodle.y <= stage.stageHeight - S - 35 && doodle.vVelocity < 0)
+			{
 				for each (var stick:Stick in stageStickArr)
 					stick.y -= doodle.vVelocity;
+				score -= doodle.vVelocity;
+				scoreText.text = String(score);
+			}
+			
 			else
 			{
 				doodle.y += doodle.vVelocity;
 				if (doodle.vVelocity > 0)
 					for each (stick in stageStickArr)
 						if (doodle.foots.hitTestObject(stick))
-						doodle.vVelocity = V0;
+							doodle.vVelocity = V0;
 			}
-				
+			
 			refreashSticks();
 			
 			doodle.vVelocity += GRAVITY;
 			doodle.hVelocity *= 0.5;
 			
-			if (doodle.x > stage.stageWidth + 25) doodle.x -= stage.stageWidth + 25;
-			if (doodle.x < -25) doodle.x += stage.stageWidth + 25;
+			if (doodle.x > stage.stageWidth + 25)
+				doodle.x -= stage.stageWidth + 25;
+			if (doodle.x < -25)
+				doodle.x += stage.stageWidth + 25;
 			
-			if (doodle.hVelocity > 0) doodle.setDirection("right")
-			else if (doodle.hVelocity < 0) doodle.setDirection("left");
+			if (doodle.hVelocity > 0)
+				doodle.setDirection("right")
+			else if (doodle.hVelocity < 0)
+				doodle.setDirection("left");
 		
 		}
 		
-		private function refreashSticks():void 
+		private function refreashSticks():void
 		{
 			var stick:Stick;
-			trace();
+			
 			while (stageStickArr[0].y > stage.stageHeight)
 			{
 				sceneLayer.removeChild(stageStickArr[0]);
 				stick = stageStickArr.shift();
-				if (stick is NormalStick) normalStickArr.push(stick);
+				if (stick is NormalStick)
+					normalStickArr.push(stick);
 			}
 			
 			while (stageStickArr[stageStickArr.length - 1].y > -100)
 			{
-				stick=getNewStick();
+				stick = getNewStick();
 				stick.x = Math.random() * (stage.stageWidth - stick.width) + stick.width / 2;
 				stick.y = stageStickArr[stageStickArr.length - 1].y - (Math.random() * (S - 60) + 50);
 				stageStickArr.push(stick);
@@ -158,12 +171,16 @@ package
 			}
 		}
 		
-		public function getNewStick():Stick 
+		private function getVDistanceByTime():Number
+		{
+			var min:Number = score / 30;
+			return (Math.random() * (S - 60) + 50);
+		}
+		
+		public function getNewStick():Stick
 		{
 			return normalStickArr.pop();
 		}
-		
-		
 		
 		private function createSticks():void
 		{
@@ -200,7 +217,7 @@ class Doodle extends Sprite
 	public var foots:Shape;
 	public var vVelocity:Number;
 	public var hVelocity:Number;
-	private var direction:String="left";
+	private var direction:String = "left";
 	
 	public function Doodle():void
 	{
@@ -227,21 +244,21 @@ class Doodle extends Sprite
 			drawLine(-15, 5, 15, 5);
 			drawLine(-15, 10, 15, 10);
 			drawLine(-15, 15, 15, 15);
-			drawLine( -15, 5, 15, 5);
+			drawLine(-15, 5, 15, 5);
 			
 		}
 		
 		with (foots)
 		{
-			drawLine( -10, 18, -10, 20);
-			drawLine( -2, 18, -2, 20);
+			drawLine(-10, 18, -10, 20);
+			drawLine(-2, 18, -2, 20);
 			drawLine(4, 18, 4, 20);
 			drawLine(12, 18, 12, 20);
 			drawLine(-10, 20, -15, 20);
 			drawLine(-2, 20, -7, 20);
 			drawLine(4, 20, -1, 20);
 			drawLine(12, 20, 7, 20);
-			graphics.drawRect( -15, 18, 30, 2);
+			graphics.drawRect(-15, 18, 30, 2);
 		}
 	}
 	
