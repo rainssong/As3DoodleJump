@@ -20,6 +20,10 @@ package
 	
 	public class Main extends Sprite
 	{
+		public static var stageWidth:Number;
+		public static var stageHeight:Number;
+		
+		
 		private const V0:Number = -20;
 		private const S:Number = 20 * 20 / 2;
 		private var doodle:Doodle;
@@ -52,16 +56,20 @@ package
 			// entry point
 			//timer = new Timer(1000);
 			//timer.start();
+			stageWidth = stage.stageWidth;
+			stageHeight = stage.stageHeight;
 			
 			addChild(sceneLayer = new Sprite());
 			addChild(charLayer = new Sprite());
 			addChild(uiLayer = new Sprite());
 			keyDictionary = new Dictionary();
+			normalStickArr = new Vector.<NormalStick>;
+			movingStickArr = new Vector.<MovingStick>;
+			
 			doodle = new Doodle();
+			
 			scoreText = new TextField;
 			uiLayer.addChild(scoreText);
-			
-			createSticks();
 			
 			resetGame();
 			startGame();
@@ -128,8 +136,20 @@ package
 				doodle.y += doodle.vVelocity;
 				if (doodle.vVelocity > 0)
 					for each (stick in stageStickArr)
-						if (doodle.foots.hitTestObject(stick))
+						if (doodle.legs.hitTestObject(stick))
 							doodle.vVelocity = V0;
+			}
+			
+			for each (stick in stageStickArr)
+			{
+				if (stick is MovingStick)
+				{
+					MovingStick(stick).x += MovingStick(stick).hVelocity;
+					if (MovingStick(stick).x > MovingStick(stick).x2 && MovingStick(stick).hVelocity > 0)
+						MovingStick(stick).hVelocity *= -1;
+					if (MovingStick(stick).x < MovingStick(stick).x1 && MovingStick(stick).hVelocity < 0)
+						MovingStick(stick).hVelocity *= -1;
+				}
 			}
 			
 			refreashSticks();
@@ -159,6 +179,8 @@ package
 				stick = stageStickArr.shift();
 				if (stick is NormalStick)
 					normalStickArr.push(stick);
+				else if (stick is MovingStick)
+					movingStickArr.push(stick);
 			}
 			
 			while (stageStickArr[stageStickArr.length - 1].y > -100)
@@ -179,32 +201,22 @@ package
 		
 		public function getNewStick():Stick
 		{
-			return normalStickArr.pop();
-		}
-		
-		private function createSticks():void
-		{
-			normalStickArr = new Vector.<NormalStick>;
-			var i:int = 10;
-			while (i)
+			if (Math.random() < 0.5)
 			{
-				normalStickArr.push(new NormalStick());
-				i--;
+				if (normalStickArr.length)
+					return normalStickArr.pop();
+				return new NormalStick();
 			}
-			i = 10;
-			
-			movingStickArr = new Vector.<MovingStick>;
-			while (i)
+			else
 			{
-				movingStickArr.push(new MovingStick());
-				i--;
+				if (movingStickArr.length)
+					return movingStickArr.pop();
+				return new MovingStick();
 			}
-		
 		}
-	
 	}
-
 }
+
 import flash.display.GradientType;
 import flash.display.Graphics;
 import flash.display.Shape;
@@ -214,7 +226,7 @@ import flash.geom.Matrix;
 class Doodle extends Sprite
 {
 	public var body:Shape;
-	public var foots:Shape;
+	public var legs:Shape;
 	public var vVelocity:Number;
 	public var hVelocity:Number;
 	private var direction:String = "left";
@@ -222,9 +234,9 @@ class Doodle extends Sprite
 	public function Doodle():void
 	{
 		body = new Shape();
-		foots = new Shape();
+		legs = new Shape();
 		addChild(body);
-		addChild(foots);
+		addChild(legs);
 		hVelocity = 0;
 		hVelocity = 0;
 		
@@ -248,7 +260,7 @@ class Doodle extends Sprite
 			
 		}
 		
-		with (foots)
+		with (legs)
 		{
 			drawLine(-10, 18, -10, 20);
 			drawLine(-2, 18, -2, 20);
@@ -299,16 +311,33 @@ class NormalStick extends Stick
 
 class MovingStick extends Stick
 {
-	public var moveRange:Number;
-	public var direction:String = "right";
+	public const RIGHT:Boolean = true;
+	public const LEFT:Boolean = false;
+	public var hVelocity:Number
+	
+	private var _x1:Number;
+	private var _x2:Number;
 	
 	public function MovingStick():void
 	{
 		graphics.beginFill(0x000066);
 		graphics.drawRoundRect(-25, -25, 50, 10, 10);
 		graphics.endFill();
-		moveRange = Math.random() * 240 + 100;
+		_x1 = Math.random() * (Main.stageWidth - width) + width / 2;
+		_x2 = Math.min(Math.random() * (Main.stageWidth - width)+ width + _x1, Main.stageWidth - width / 2)
+		hVelocity = Math.random() > 0.5 ? 4 : -4;
 	}
+	
+	public function get x1():Number
+	{
+		return _x1;
+	}
+	
+	public function get x2():Number
+	{
+		return _x2;
+	}
+
 }
 
 class BrokenStick extends Stick
