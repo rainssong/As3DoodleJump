@@ -53,7 +53,7 @@ package
 		private function init(e:Event = null):void
 		{
 			//stage.scaleMode = StageScaleMode.NO_SCALE;
-			stage.scaleMode = StageScaleMode.EXACT_FIT;
+			stage.scaleMode = StageScaleMode.SHOW_ALL;
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			// entry point
 			//timer = new Timer(1000);
@@ -142,7 +142,8 @@ package
 					if (doodle.vVelocity > 0)
 						for each (stick in stageStickArr)
 							if (doodle.legs.hitTestObject(stick))
-								doodle.vVelocity = V0;
+								if (stick is BrokenStick) BrokenStick(stick).drop();
+								else doodle.vVelocity = V0;
 				}
 			}
 			
@@ -233,11 +234,15 @@ package
 	}
 }
 
+import com.greensock.plugins.Physics2DPlugin;
+import com.greensock.plugins.TweenPlugin;
+import com.greensock.TweenLite;
 import flash.display.BlendMode;
 import flash.display.GradientType;
 import flash.display.Graphics;
 import flash.display.Shape;
 import flash.display.Sprite;
+import flash.events.Event;
 import flash.geom.ColorTransform;
 import flash.geom.Matrix;
 
@@ -308,12 +313,12 @@ class Doodle extends Sprite
 	}
 }
 
-class Stick extends Shape
+class Stick extends Sprite
 {
 	public function Stick():void
 	{
-		graphics.lineStyle(1);
-		graphics.drawRoundRect(-25, -5, 50, 10, 10);
+		//graphics.lineStyle(1);
+		//graphics.drawRoundRect(-25, -5, 50, 10, 10);
 	}
 }
 
@@ -360,16 +365,34 @@ class MovingStick extends Stick
 
 class BrokenStick extends Stick
 {
+	public var leftPart:Shape=new Shape();
+	public var rightPart:Shape = new Shape();
 	public function BrokenStick():void
 	{
-		graphics.beginFill(0x7C5A2C);
-		graphics.drawRoundRect(-25, -5, 50, 10, 10);
-		graphics.endFill();
-		//graphics.lineStyle();
-		graphics.drawRect(0, -5, 2, 10);
-		//graphics.moveTo(25, -5);
-		//graphics.lineTo(mc,new Matrix(),new ColorTransform(),BlendMode.ERASE)
+		addChild(leftPart);
+		addChild(rightPart);
+		leftPart.graphics.beginFill(0x7C5A2C);
+		leftPart.graphics.drawRoundRectComplex( -25, -5, 24, 10, 10, 0, 10, 0);
+		
+		
+		rightPart.graphics.beginFill(0x7C5A2C);
+		
+		rightPart.graphics.drawRoundRectComplex( 0, -5, 24, 10,0, 10, 0, 10);
+		//graphics.endFill();
 	}
+	
+	public function drop():void
+	{
+		//addEventListener(Event.ENTER_FRAME, onEnterFame);
+		TweenPlugin.activate([Physics2DPlugin]);
+		TweenLite.to(leftPart, 1, { physics2D: { velocity:20, angle:180, gravity:400 }});
+		TweenLite.to(rightPart, 1, { physics2D: { velocity:20, angle:0, gravity:400 }});
+	}
+	
+	//private function onEnterFame(e:Event):void 
+	//{
+		//TweenLite.to()
+	//}
 }
 
 class GlassStick extends Stick
