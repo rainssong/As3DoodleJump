@@ -24,15 +24,17 @@ package
 		public static var stageHeight:Number;
 		
 		
-		private const V0:Number = -20;
-		private const S:Number = 20 * 20 / 2;
+		public static  const V0:Number = -20;
+		public static  const S:Number = 20 * 20 / 2;
+		public static const GRAVITY:Number = 1;
+		
 		private var doodle:Doodle;
 		private var timer:Timer;
 		private var time:Number;
 		private var normalStickArr:Vector.<NormalStick>;
 		private var stageStickArr:Vector.<Stick>;
 		private var keyDictionary:Dictionary;
-		private const GRAVITY:Number = 1;
+		
 		private var score:int;
 		private var scoreText:TextField
 		private var movingStickArr:Vector.<MovingStick>;
@@ -41,6 +43,7 @@ package
 		private var uiLayer:Sprite;
 		private var bgLayer:Sprite;
 		private var brokenStickArr:Vector.<BrokenStick>;
+		private var glassStickArr:Vector.<GlassStick>;;
 		
 		public function Main():void
 		{
@@ -69,6 +72,7 @@ package
 			normalStickArr = new Vector.<NormalStick>;
 			movingStickArr = new Vector.<MovingStick>;
 			brokenStickArr = new Vector.<BrokenStick>;
+			glassStickArr = new Vector.<GlassStick>;
 			
 			doodle = new Doodle();
 			
@@ -143,7 +147,14 @@ package
 						for each (stick in stageStickArr)
 							if (doodle.legs.hitTestObject(stick))
 								if (stick is BrokenStick) BrokenStick(stick).drop();
-								else doodle.vVelocity = V0;
+								else
+								{
+									doodle.vVelocity = V0;
+									if (stick is GlassStick) 
+									{
+										stick.y = stageHeight + 200;
+									}
+								}
 				}
 			}
 			
@@ -189,6 +200,8 @@ package
 					normalStickArr.push(stick);
 				else if (stick is MovingStick)
 					movingStickArr.push(stick);
+				else if (stick is GlassStick)
+					glassStickArr.push(stick);
 			}
 			
 			while (stageStickArr[stageStickArr.length - 1].y > -100)
@@ -218,17 +231,23 @@ package
 					return normalStickArr.pop();
 				return new NormalStick();
 			}
-			else if (Math.random() < 0.6)
+			else if (Math.random() < 0.5)
 			{
 				if (movingStickArr.length)
 					return movingStickArr.pop();
 				return new MovingStick();
 			}
-			else
+			else  if (Math.random() < 0.7)
 			{
 				if (brokenStickArr.length)
 					return brokenStickArr.pop();
 				return new BrokenStick();
+			}
+			else
+			{
+				if (glassStickArr.length)
+					return glassStickArr.pop();
+				return new GlassStick();
 			}
 		}
 	}
@@ -253,8 +272,6 @@ class Doodle extends Sprite
 	public var vVelocity:Number;
 	public var hVelocity:Number;
 	private var direction:String = "left";
-	
-	
 	
 	public function Doodle():void
 	{
@@ -315,6 +332,8 @@ class Doodle extends Sprite
 
 class Stick extends Sprite
 {
+	public static const STICK_WIDTH:Number = 50;
+	static public const STICK_HEIGHT:Number = 10;
 	public function Stick():void
 	{
 		//graphics.lineStyle(1);
@@ -324,18 +343,18 @@ class Stick extends Sprite
 
 class NormalStick extends Stick
 {
+	
 	public function NormalStick():void
 	{
+		graphics.lineStyle(1);
 		graphics.beginFill(0x6BB600);
-		graphics.drawRoundRect(-25, -5, 50, 10, 10);
+		graphics.drawRoundRect(-STICK_WIDTH/2, -STICK_HEIGHT/2, STICK_WIDTH, STICK_HEIGHT, 10);
 		graphics.endFill();
 	}
 }
 
 class MovingStick extends Stick
 {
-	public const RIGHT:Boolean = true;
-	public const LEFT:Boolean = false;
 	public var hVelocity:Number
 	
 	private var _center:Number;
@@ -343,9 +362,11 @@ class MovingStick extends Stick
 	
 	public function MovingStick():void
 	{
+		graphics.lineStyle(1);
 		graphics.beginFill(0x0998C2);
-		graphics.drawRoundRect(-25, -5, 50, 10, 10);
+		graphics.drawRoundRect(-STICK_WIDTH/2, -STICK_HEIGHT/2, STICK_WIDTH, STICK_HEIGHT, 10);
 		graphics.endFill();
+		
 		_center = Main.stageWidth * Math.random();
 		_r = Math.random() * (Main.stageWidth/3*2 - width / 2) + width / 2;
 		hVelocity = Math.random() > 0.5 ? 3 : -3;
@@ -367,35 +388,54 @@ class BrokenStick extends Stick
 {
 	public var leftPart:Shape=new Shape();
 	public var rightPart:Shape = new Shape();
+	private var vVelocity:Number = 0;
 	public function BrokenStick():void
 	{
+		graphics.lineStyle(1);
 		addChild(leftPart);
 		addChild(rightPart);
+		
+		leftPart.graphics.lineStyle(1);
 		leftPart.graphics.beginFill(0x7C5A2C);
-		leftPart.graphics.drawRoundRectComplex( -25, -5, 24, 10, 10, 0, 10, 0);
+		leftPart.graphics.drawRoundRectComplex( -25, -5, 23, 10, 10, 0, 10, 0);
 		
-		
+		rightPart.graphics.lineStyle(1);
 		rightPart.graphics.beginFill(0x7C5A2C);
-		
-		rightPart.graphics.drawRoundRectComplex( 0, -5, 24, 10,0, 10, 0, 10);
+		rightPart.graphics.drawRoundRectComplex( 2, -5, 23, 10,0, 10, 0, 10);
 		//graphics.endFill();
+		addEventListener(Event.REMOVED_FROM_STAGE, onRemove);
 	}
 	
 	public function drop():void
 	{
-		//addEventListener(Event.ENTER_FRAME, onEnterFame);
-		TweenPlugin.activate([Physics2DPlugin]);
-		TweenLite.to(leftPart, 1, { physics2D: { velocity:20, angle:180, gravity:400 }});
-		TweenLite.to(rightPart, 1, { physics2D: { velocity:20, angle:0, gravity:400 }});
+		addEventListener(Event.ENTER_FRAME, onEnterFrame);
 	}
 	
-	//private function onEnterFame(e:Event):void 
-	//{
-		//TweenLite.to()
-	//}
+	private function onEnterFrame(e:Event):void 
+	{
+		leftPart.y += vVelocity;
+		leftPart.x -= 2;
+		
+		rightPart.y += vVelocity;
+		rightPart.x += 2;
+		vVelocity += Main.GRAVITY;
+	}
+	
+	private function onRemove(e:Event):void 
+	{
+		removeEventListener(Event.REMOVED_FROM_STAGE, onRemove);
+		removeEventListener(Event.ENTER_FRAME, onEnterFrame);
+	}
 }
 
 class GlassStick extends Stick
 {
-
+	
+	public function GlassStick():void
+	{
+		graphics.lineStyle(1);
+		graphics.beginFill(0xFFFFFF);
+		graphics.drawRoundRect(-STICK_WIDTH/2, -STICK_HEIGHT/2, STICK_WIDTH, STICK_HEIGHT, 10);
+		graphics.endFill();
+	}
 }
