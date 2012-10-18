@@ -23,9 +23,8 @@ package
 		public static var stageWidth:Number;
 		public static var stageHeight:Number;
 		
-		
-		public static  const V0:Number = -20;
-		public static  const S:Number = 20 * 20 / 2;
+		public static const V0:Number = -20;
+		public static const S:Number = 20 * 20 / 2;
 		public static const GRAVITY:Number = 1;
 		
 		private var doodle:Doodle;
@@ -43,7 +42,7 @@ package
 		private var uiLayer:Sprite;
 		private var bgLayer:Sprite;
 		private var brokenStickArr:Vector.<BrokenStick>;
-		private var glassStickArr:Vector.<GlassStick>;;
+		private var glassStickArr:Vector.<GlassStick>;
 		
 		public function Main():void
 		{
@@ -55,9 +54,10 @@ package
 		
 		private function init(e:Event = null):void
 		{
+			removeEventListener(Event.ADDED_TO_STAGE, init);
 			//stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.scaleMode = StageScaleMode.SHOW_ALL;
-			removeEventListener(Event.ADDED_TO_STAGE, init);
+			
 			// entry point
 			//timer = new Timer(1000);
 			//timer.start();
@@ -124,6 +124,9 @@ package
 		private function onEnterFrame(e:Event):void
 		{
 			time += 1 / stage.frameRate;
+			
+			//trace(time)
+			
 			if (keyDictionary[Keyboard.LEFT])
 				doodle.hVelocity -= 4;
 			if (keyDictionary[Keyboard.RIGHT])
@@ -140,17 +143,18 @@ package
 			
 			else
 			{
-				for (var i:int = 0; i < 2; i++ )
+				for (var i:int = 0; i < 2; i++)
 				{
-					doodle.y += doodle.vVelocity/2;
+					doodle.y += doodle.vVelocity / 2;
 					if (doodle.vVelocity > 0)
 						for each (stick in stageStickArr)
 							if (doodle.legs.hitTestObject(stick))
-								if (stick is BrokenStick) BrokenStick(stick).drop();
+								if (stick is BrokenStick)
+									BrokenStick(stick).drop();
 								else
 								{
 									doodle.vVelocity = V0;
-									if (stick is GlassStick) 
+									if (stick is GlassStick)
 									{
 										stick.y = stageHeight + 200;
 									}
@@ -164,9 +168,9 @@ package
 				{
 					var temp:MovingStick = stick as MovingStick;
 					temp.x += temp.hVelocity;
-					if ((temp.x > temp.center+temp.r || (temp.x+temp.width/2)>stageWidth) && temp.hVelocity > 0)
+					if ((temp.x > temp.center + temp.r || (temp.x + temp.width / 2) > stageWidth) && temp.hVelocity > 0)
 						temp.hVelocity *= -1;
-					if ((temp.x < temp.center-temp.r || (temp.x-temp.width/2)<0) && temp.hVelocity < 0)
+					if ((temp.x < temp.center - temp.r || (temp.x - temp.width / 2) < 0) && temp.hVelocity < 0)
 						temp.hVelocity *= -1;
 				}
 			}
@@ -204,45 +208,59 @@ package
 					glassStickArr.push(stick);
 			}
 			
-			while (stageStickArr[stageStickArr.length - 1].y > -100)
+			while (stageStickArr[stageStickArr.length - 1].y > -300)
 			{
 				stick = getNewStick();
-					if (stick is MovingStick)
-					stick.x = Math.random() * MovingStick(stick).r*2 + MovingStick(stick).center-MovingStick(stick).r;
-					else
+				if (stick is MovingStick)
+					stick.x = Math.random() * MovingStick(stick).r * 2 + MovingStick(stick).center - MovingStick(stick).r;
+				else
 					stick.x = Math.random() * (stage.stageWidth - stick.width) + stick.width / 2;
-				stick.y = stageStickArr[stageStickArr.length - 1].y - (Math.random() * (S - 60) + 50);
+				
+				stick.y = stageStickArr[stageStickArr.length - 1].y - (Math.random() * (S - 40) + 10);
 				stageStickArr.push(stick);
 				sceneLayer.addChild(stick);
+				
+				var distance:Number = stageStickArr[stageStickArr.length - 2].y - stageStickArr[stageStickArr.length - 1].y;
+				
+				if (Math.random() < 0.1 && distance>50)
+				{
+					stick = new BrokenStick();
+					stick.x = Math.random() * (stage.stageWidth - stick.width) + stick.width / 2;
+					stick.y = stageStickArr[stageStickArr.length - 1].y + Math.random() * (distance-20) + 10;
+					stageStickArr.push(stick);
+					sceneLayer.addChild(stick);
+				}
 			}
 		}
 		
-		private function getVDistanceByTime():Number
+		
+		
+		private function getVDistanceByScore():Number
 		{
-			var min:Number = score / 30;
+			
 			return (Math.random() * (S - 60) + 50);
 		}
 		
 		public function getNewStick():Stick
 		{
-			if (Math.random() < 0.3)
+			if (Math.random() < 0.5)
 			{
 				if (normalStickArr.length)
 					return normalStickArr.pop();
 				return new NormalStick();
 			}
-			else if (Math.random() < 0.5)
+			else if (Math.random() < 0.7)
 			{
 				if (movingStickArr.length)
 					return movingStickArr.pop();
 				return new MovingStick();
 			}
-			else  if (Math.random() < 0.7)
+			/*else if (Math.random() < 0.8)
 			{
 				if (brokenStickArr.length)
 					return brokenStickArr.pop();
 				return new BrokenStick();
-			}
+			}*/
 			else
 			{
 				if (glassStickArr.length)
@@ -253,9 +271,6 @@ package
 	}
 }
 
-import com.greensock.plugins.Physics2DPlugin;
-import com.greensock.plugins.TweenPlugin;
-import com.greensock.TweenLite;
 import flash.display.BlendMode;
 import flash.display.GradientType;
 import flash.display.Graphics;
@@ -334,6 +349,7 @@ class Stick extends Sprite
 {
 	public static const STICK_WIDTH:Number = 50;
 	static public const STICK_HEIGHT:Number = 10;
+	
 	public function Stick():void
 	{
 		//graphics.lineStyle(1);
@@ -348,7 +364,7 @@ class NormalStick extends Stick
 	{
 		graphics.lineStyle(1);
 		graphics.beginFill(0x6BB600);
-		graphics.drawRoundRect(-STICK_WIDTH/2, -STICK_HEIGHT/2, STICK_WIDTH, STICK_HEIGHT, 10);
+		graphics.drawRoundRect(-STICK_WIDTH / 2, -STICK_HEIGHT / 2, STICK_WIDTH, STICK_HEIGHT, 10);
 		graphics.endFill();
 	}
 }
@@ -364,20 +380,20 @@ class MovingStick extends Stick
 	{
 		graphics.lineStyle(1);
 		graphics.beginFill(0x0998C2);
-		graphics.drawRoundRect(-STICK_WIDTH/2, -STICK_HEIGHT/2, STICK_WIDTH, STICK_HEIGHT, 10);
+		graphics.drawRoundRect(-STICK_WIDTH / 2, -STICK_HEIGHT / 2, STICK_WIDTH, STICK_HEIGHT, 10);
 		graphics.endFill();
 		
 		_center = Main.stageWidth * Math.random();
-		_r = Math.random() * (Main.stageWidth/3*2 - width / 2) + width / 2;
+		_r = Math.random() * (Main.stageWidth / 3 * 2 - width / 2) + width / 2;
 		hVelocity = Math.random() > 0.5 ? 3 : -3;
 	}
 	
-	public function get center():Number 
+	public function get center():Number
 	{
 		return _center;
 	}
 	
-	public function get r():Number 
+	public function get r():Number
 	{
 		return _r;
 	}
@@ -386,9 +402,10 @@ class MovingStick extends Stick
 
 class BrokenStick extends Stick
 {
-	public var leftPart:Shape=new Shape();
+	public var leftPart:Shape = new Shape();
 	public var rightPart:Shape = new Shape();
 	private var vVelocity:Number = 0;
+	
 	public function BrokenStick():void
 	{
 		graphics.lineStyle(1);
@@ -397,11 +414,11 @@ class BrokenStick extends Stick
 		
 		leftPart.graphics.lineStyle(1);
 		leftPart.graphics.beginFill(0x7C5A2C);
-		leftPart.graphics.drawRoundRectComplex( -25, -5, 23, 10, 10, 0, 10, 0);
+		leftPart.graphics.drawRoundRectComplex(-25, -5, 23, 10, 10, 0, 10, 0);
 		
 		rightPart.graphics.lineStyle(1);
 		rightPart.graphics.beginFill(0x7C5A2C);
-		rightPart.graphics.drawRoundRectComplex( 2, -5, 23, 10,0, 10, 0, 10);
+		rightPart.graphics.drawRoundRectComplex(2, -5, 23, 10, 0, 10, 0, 10);
 		//graphics.endFill();
 		addEventListener(Event.REMOVED_FROM_STAGE, onRemove);
 	}
@@ -411,7 +428,7 @@ class BrokenStick extends Stick
 		addEventListener(Event.ENTER_FRAME, onEnterFrame);
 	}
 	
-	private function onEnterFrame(e:Event):void 
+	private function onEnterFrame(e:Event):void
 	{
 		leftPart.y += vVelocity;
 		leftPart.x -= 2;
@@ -421,7 +438,7 @@ class BrokenStick extends Stick
 		vVelocity += Main.GRAVITY;
 	}
 	
-	private function onRemove(e:Event):void 
+	private function onRemove(e:Event):void
 	{
 		removeEventListener(Event.REMOVED_FROM_STAGE, onRemove);
 		removeEventListener(Event.ENTER_FRAME, onEnterFrame);
@@ -435,7 +452,7 @@ class GlassStick extends Stick
 	{
 		graphics.lineStyle(1);
 		graphics.beginFill(0xFFFFFF);
-		graphics.drawRoundRect(-STICK_WIDTH/2, -STICK_HEIGHT/2, STICK_WIDTH, STICK_HEIGHT, 10);
+		graphics.drawRoundRect(-STICK_WIDTH / 2, -STICK_HEIGHT / 2, STICK_WIDTH, STICK_HEIGHT, 10);
 		graphics.endFill();
 	}
 }
