@@ -101,7 +101,6 @@ package
 			stageStickArr[0].x = stage.stageWidth / 2;
 			stageStickArr[0].y = stage.stageHeight - 30;
 		
-			//addSticks();
 		}
 		
 		private function startGame():void
@@ -125,13 +124,11 @@ package
 		{
 			time += 1 / stage.frameRate;
 			
-			//trace(time)
 			
 			if (keyDictionary[Keyboard.LEFT])
 				doodle.hVelocity -= 4;
 			if (keyDictionary[Keyboard.RIGHT])
 				doodle.hVelocity += 4;
-			
 			doodle.x += doodle.hVelocity;
 			if (doodle.y <= stage.stageHeight - S - 35 && doodle.vVelocity < 0)
 			{
@@ -143,7 +140,7 @@ package
 			
 			else
 			{
-				for (var i:int = 0; i < 2; i++)
+				for (var i:int = 0; i < 2; i++)   //incase break throuth
 				{
 					doodle.y += doodle.vVelocity / 2;
 					if (doodle.vVelocity > 0)
@@ -168,12 +165,18 @@ package
 				{
 					var temp:MovingStick = stick as MovingStick;
 					temp.x += temp.hVelocity;
-					if ((temp.x > temp.center + temp.r || (temp.x + temp.width / 2) > stageWidth) && temp.hVelocity > 0)
+					if ((temp.x > stageWidth-temp.width) && temp.hVelocity > 0 || (temp.x < temp.width) && temp.hVelocity < 0)
 						temp.hVelocity *= -1;
-					if ((temp.x < temp.center - temp.r || (temp.x - temp.width / 2) < 0) && temp.hVelocity < 0)
-						temp.hVelocity *= -1;
+					//if ()
+						//temp.hVelocity = -MovingStick.SPEED_X;
+						
+					//temp.hVelocity=
 				}
 			}
+			
+			
+			
+			
 			
 			refreashSticks();
 			
@@ -211,12 +214,11 @@ package
 			while (stageStickArr[stageStickArr.length - 1].y > -300)
 			{
 				stick = getNewStick();
-				if (stick is MovingStick)
-					stick.x = Math.random() * MovingStick(stick).r * 2 + MovingStick(stick).center - MovingStick(stick).r;
-				else
-					stick.x = Math.random() * (stage.stageWidth - stick.width) + stick.width / 2;
 				
-				stick.y = stageStickArr[stageStickArr.length - 1].y - (Math.random() * (S - 40) + 10);
+				stick.x = Math.random() * (stage.stageWidth - stick.width) + stick.width / 2;
+				
+				//stick.y = stageStickArr[stageStickArr.length - 1].y - (Math.random() * (S-30) - 20);
+				stick.y = stageStickArr[stageStickArr.length - 1].y  - 20 - Math.random() * (S-30);
 				stageStickArr.push(stick);
 				sceneLayer.addChild(stick);
 				
@@ -226,7 +228,7 @@ package
 				{
 					stick = new BrokenStick();
 					stick.x = Math.random() * (stage.stageWidth - stick.width) + stick.width / 2;
-					stick.y = stageStickArr[stageStickArr.length - 1].y + Math.random() * (distance-20) + 10;
+					stick.y = stageStickArr[stageStickArr.length - 1].y + Math.random() * (distance-20) + 20;
 					stageStickArr.push(stick);
 					sceneLayer.addChild(stick);
 				}
@@ -255,12 +257,6 @@ package
 					return movingStickArr.pop();
 				return new MovingStick();
 			}
-			/*else if (Math.random() < 0.8)
-			{
-				if (brokenStickArr.length)
-					return brokenStickArr.pop();
-				return new BrokenStick();
-			}*/
 			else
 			{
 				if (glassStickArr.length)
@@ -359,7 +355,6 @@ class Stick extends Sprite
 
 class NormalStick extends Stick
 {
-	
 	public function NormalStick():void
 	{
 		graphics.lineStyle(1);
@@ -371,10 +366,8 @@ class NormalStick extends Stick
 
 class MovingStick extends Stick
 {
-	public var hVelocity:Number
-	
-	private var _center:Number;
-	private var _r:Number;
+	public var hVelocity:Number;
+	public static const SPEED_X:Number = 2.5;
 	
 	public function MovingStick():void
 	{
@@ -383,21 +376,8 @@ class MovingStick extends Stick
 		graphics.drawRoundRect(-STICK_WIDTH / 2, -STICK_HEIGHT / 2, STICK_WIDTH, STICK_HEIGHT, 10);
 		graphics.endFill();
 		
-		_center = Main.stageWidth * Math.random();
-		_r = Math.random() * (Main.stageWidth / 3 * 2 - width / 2) + width / 2;
-		hVelocity = Math.random() > 0.5 ? 3 : -3;
+		hVelocity = Math.random() > 0.5 ? SPEED_X : -SPEED_X;
 	}
-	
-	public function get center():Number
-	{
-		return _center;
-	}
-	
-	public function get r():Number
-	{
-		return _r;
-	}
-
 }
 
 class BrokenStick extends Stick
@@ -414,11 +394,11 @@ class BrokenStick extends Stick
 		
 		leftPart.graphics.lineStyle(1);
 		leftPart.graphics.beginFill(0x7C5A2C);
-		leftPart.graphics.drawRoundRectComplex(-25, -5, 23, 10, 10, 0, 10, 0);
+		leftPart.graphics.drawRoundRectComplex(-STICK_WIDTH / 2, -STICK_HEIGHT / 2, 23, 10, 10, 0, 10, 0);
 		
 		rightPart.graphics.lineStyle(1);
 		rightPart.graphics.beginFill(0x7C5A2C);
-		rightPart.graphics.drawRoundRectComplex(2, -5, 23, 10, 0, 10, 0, 10);
+		rightPart.graphics.drawRoundRectComplex(2, -5, STICK_WIDTH / 2-2, STICK_HEIGHT, 0, 10, 0, 10);
 		//graphics.endFill();
 		addEventListener(Event.REMOVED_FROM_STAGE, onRemove);
 	}
@@ -432,7 +412,6 @@ class BrokenStick extends Stick
 	{
 		leftPart.y += vVelocity;
 		leftPart.x -= 2;
-		
 		rightPart.y += vVelocity;
 		rightPart.x += 2;
 		vVelocity += Main.GRAVITY;
@@ -455,4 +434,14 @@ class GlassStick extends Stick
 		graphics.drawRoundRect(-STICK_WIDTH / 2, -STICK_HEIGHT / 2, STICK_WIDTH, STICK_HEIGHT, 10);
 		graphics.endFill();
 	}
+}
+
+class BoomStick extends Stick
+{
+	
+}
+
+class FlashStick extends Stick
+{
+	
 }
