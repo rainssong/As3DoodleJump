@@ -174,10 +174,6 @@ package
 				}
 			}
 			
-			
-			
-			
-			
 			refreashSticks();
 			
 			doodle.vVelocity += GRAVITY;
@@ -214,38 +210,28 @@ package
 			while (stageStickArr[stageStickArr.length - 1].y > -300)
 			{
 				stick = getNewStick();
-				
 				stick.x = Math.random() * (stage.stageWidth - stick.width) + stick.width / 2;
-				
-				//stick.y = stageStickArr[stageStickArr.length - 1].y - (Math.random() * (S-30) - 20);
-				stick.y = stageStickArr[stageStickArr.length - 1].y  - 20 - Math.random() * (S-30);
 				stageStickArr.push(stick);
 				sceneLayer.addChild(stick);
-				
 				var distance:Number = stageStickArr[stageStickArr.length - 2].y - stageStickArr[stageStickArr.length - 1].y;
-				
-				if (Math.random() < 0.1 && distance>50)
+				if (Math.random() < 0.1 && distance>60)
 				{
 					stick = new BrokenStick();
 					stick.x = Math.random() * (stage.stageWidth - stick.width) + stick.width / 2;
-					stick.y = stageStickArr[stageStickArr.length - 1].y + Math.random() * (distance-30) + 20;
-					stageStickArr.push(stick);
+					stick.y = stageStickArr[stageStickArr.length - 1].y + Math.random() * (distance-20) + 20;
+					stageStickArr.splice(stageStickArr.length - 1,0, stick);
 					sceneLayer.addChild(stick);
 				}
 			}
 		}
 		
-		
-		
 		private function getVDistanceByScore():Number
 		{
-			
 			return (Math.random() * (S - 60) + 50);
 		}
 		
 		public function getNewStick():Stick
 		{
-			trace(score<9000?(9000-score)/10000:0.05)
 			if (Math.random() < (score<85000?(9000-score)/10000:0.05))
 			{
 				if (normalStickArr.length)
