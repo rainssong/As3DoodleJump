@@ -228,7 +228,7 @@ package
 				{
 					stick = new BrokenStick();
 					stick.x = Math.random() * (stage.stageWidth - stick.width) + stick.width / 2;
-					stick.y = stageStickArr[stageStickArr.length - 1].y + Math.random() * (distance-20) + 20;
+					stick.y = stageStickArr[stageStickArr.length - 1].y + Math.random() * (distance-30) + 20;
 					stageStickArr.push(stick);
 					sceneLayer.addChild(stick);
 				}
@@ -245,13 +245,14 @@ package
 		
 		public function getNewStick():Stick
 		{
-			if (Math.random() < 0.5)
+			trace(score<9000?(9000-score)/10000:0.05)
+			if (Math.random() < (score<85000?(9000-score)/10000:0.05))
 			{
 				if (normalStickArr.length)
 					return normalStickArr.pop();
 				return new NormalStick();
 			}
-			else if (Math.random() < 0.7)
+			else if (Math.random() < 0.5)
 			{
 				if (movingStickArr.length)
 					return movingStickArr.pop();
