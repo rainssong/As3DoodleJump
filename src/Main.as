@@ -1,6 +1,5 @@
 package
 {
-	import com.greensock.layout.ScaleMode;
 	import flash.display.Sprite;
 	import flash.display.StageScaleMode;
 	import flash.events.Event;
