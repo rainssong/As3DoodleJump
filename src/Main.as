@@ -28,19 +28,21 @@ package
 		public static const GRAVITY:Number = 1;
 		
 		private var doodle:Doodle;
-		private var timer:Timer;
 		private var time:Number;
-		private var normalStickArr:Vector.<NormalStick>;
-		private var stageStickArr:Vector.<Stick>;
+		
 		private var keyDictionary:Dictionary;
 		
 		private var score:int;
 		private var scoreText:TextField
-		private var movingStickArr:Vector.<MovingStick>;
+		
 		private var sceneLayer:Sprite;
 		private var charLayer:Sprite;
 		private var uiLayer:Sprite;
 		private var bgLayer:Sprite;
+		
+		private var normalStickArr:Vector.<NormalStick>;
+		private var stageStickArr:Vector.<Stick>;
+		private var movingStickArr:Vector.<MovingStick>;
 		private var brokenStickArr:Vector.<BrokenStick>;
 		private var glassStickArr:Vector.<GlassStick>;
 		
@@ -55,12 +57,7 @@ package
 		private function init(e:Event = null):void
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
-			//stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.scaleMode = StageScaleMode.SHOW_ALL;
-			
-			// entry point
-			//timer = new Timer(1000);
-			//timer.start();
 			stageWidth = stage.stageWidth;
 			stageHeight = stage.stageHeight;
 			
@@ -123,10 +120,13 @@ package
 		private function onEnterFrame(e:Event):void
 		{
 			time += 1 / stage.frameRate;
+			//move control
 			if (keyDictionary[Keyboard.LEFT])
 				doodle.hVelocity -= 4;
 			if (keyDictionary[Keyboard.RIGHT])
 				doodle.hVelocity += 4;
+				
+			//moving visual
 			doodle.x += doodle.hVelocity;
 			if (doodle.y <= stage.stageHeight - S - 35 && doodle.vVelocity < 0)
 			{
@@ -137,7 +137,7 @@ package
 			}
 			else
 			{
-				for (var i:int = 0; i < 2; i++)   //incase break throuth
+				for (var i:int = 0; i < 2; i++)   //incase break through
 				{
 					doodle.y += doodle.vVelocity / 2;
 					if (doodle.vVelocity > 0)
@@ -154,13 +154,14 @@ package
 				}
 			}
 			
+			//moving sticks  the Math.random()<0.01 drive them crazy
 			for each (stick in stageStickArr)
 			{
 				if (stick is MovingStick)
 				{
 					var temp:MovingStick = stick as MovingStick;
 					temp.x += temp.hVelocity;
-					if ((temp.x > stageWidth-temp.width) && temp.hVelocity > 0 || (temp.x < temp.width) && temp.hVelocity < 0)
+					if ((temp.x > stageWidth-temp.width) && temp.hVelocity > 0 || (temp.x < temp.width) && temp.hVelocity < 0 || Math.random()<0.01)
 						temp.hVelocity *= -1;
 				}
 			}
@@ -168,20 +169,24 @@ package
 			refreashSticks();
 			doodle.vVelocity += GRAVITY;
 			doodle.hVelocity *= 0.5;
+			
+			//outside
 			if (doodle.x > stage.stageWidth + 25)
 				doodle.x -= stage.stageWidth + 25;
 			if (doodle.x < -25)
 				doodle.x += stage.stageWidth + 25;
+				
+			//char direction
 			if (doodle.hVelocity > 0)
 				doodle.scaleX = -1;
 			else if (doodle.hVelocity < 0)
 				doodle.scaleX = 1;
-		
 		}
 		
 		private function refreashSticks():void
 		{
 			var stick:Stick;
+			//add new sticks
 			while (stageStickArr[0].y > stage.stageHeight)
 			{
 				sceneLayer.removeChild(stageStickArr[0]);
@@ -193,7 +198,7 @@ package
 				else if (stick is GlassStick)
 					glassStickArr.push(stick);
 			}
-			
+			//remove old sticks
 			while (stageStickArr[stageStickArr.length - 1].y > -300)
 			{
 				stick = getNewStick();
@@ -204,7 +209,7 @@ package
 				stageStickArr.push(stick);
 				sceneLayer.addChild(stick);
 				var distance:Number = stageStickArr[stageStickArr.length - 2].y - stageStickArr[stageStickArr.length - 1].y;
-				if (Math.random() < 1 && distance>60)
+				if (Math.random() < 0.1 && distance>60)
 				{
 					stick = new BrokenStick();
 					stick.x = Math.random() * (stage.stageWidth - stick.width) + stick.width / 2;
@@ -213,11 +218,6 @@ package
 					sceneLayer.addChild(stick);
 				}
 			}
-		}
-		
-		private function getVDistanceByScore():Number
-		{
-			return (Math.random() * (S - 60) + 50);
 		}
 		
 		public function getNewStick():Stick
@@ -325,8 +325,7 @@ class Stick extends Sprite
 	
 	public function Stick():void
 	{
-		//graphics.lineStyle(1);
-		//graphics.drawRoundRect(-25, -5, 50, 10, 10);
+		
 	}
 }
 
