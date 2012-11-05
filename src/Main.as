@@ -138,8 +138,8 @@ package
 			{
 				for (var i:int = 0; i < 2; i++)   //incase break through
 				{
-					doodle.y += doodle.vVelocity / 2;
-					if (doodle.vVelocity > 0)
+					
+					if (doodle.vVelocity >= 0)
 						for each (stick in stageStickArr)
 							if (doodle.legs.hitTestObject(stick))
 								if (stick is BrokenStick)
@@ -150,6 +150,7 @@ package
 									if (stick is GlassStick)
 										stick.y = stageHeight + 200;
 								}
+					doodle.y += doodle.vVelocity / 2;
 				}
 			}
 			
