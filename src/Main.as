@@ -81,6 +81,7 @@ package
 		
 		private function resetGame():void
 		{
+			
 			score = 0;
 			time = 0;
 			doodle.vVelocity = 0;
@@ -99,11 +100,29 @@ package
 		
 		}
 		
+		private function gameOver():void
+		{
+			//addChild(gameOverPanel);
+			//so.data["highScores"] = so.data["highScores"].sortOn("score",Array.NUMERIC+Array.DESCENDING);
+			//gameOverPanel.loadHighScore(so.data["highScores"]);
+			
+			removeEventListener(Event.ENTER_FRAME, onEnterFrame);
+			stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+			stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+		}
+		
 		private function startGame():void
 		{
 			addEventListener(Event.ENTER_FRAME, onEnterFrame);
 			stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 			stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+		}
+		
+		private function restart():void
+		{
+			//removeChild(gameOverPanel);
+			resetGame()
+			startGame();
 		}
 		
 		private function onKeyUp(e:KeyboardEvent):void
