@@ -274,7 +274,7 @@ import flash.geom.Matrix;
 
 class Doodle extends Sprite
 {
-	public var body:Shape;
+	//public var body:Shape;
 	public var legs:Shape;
 	public var vVelocity:Number;
 	public var hVelocity:Number;
@@ -282,33 +282,38 @@ class Doodle extends Sprite
 	
 	public function Doodle():void
 	{
-		body = new Shape();
+		//body = new Shape();
 		legs = new Shape();
-		addChild(body);
+		//addChild(body);
 		addChild(legs);
 		hVelocity = 0;
 		hVelocity = 0;
 		
-		with (body)
-		{
+		
+			graphics.beginFill(0xC3CC00);
 			graphics.lineStyle(1);
 			graphics.moveTo(-25, -4);
 			graphics.lineTo(-15, -4);
-			graphics.cubicCurveTo(-10, -24, 10, -24, 15, -4);
+			graphics.cubicCurveTo( -10, -24, 10, -24, 15, -4);
+			//graphics.beginFill(0x61A82A);
+			//graphics.endFill();
 			graphics.lineTo(15, 18);
-			graphics.lineTo(-15, 18);
+			
+			graphics.lineTo( -15, 18);
+			
 			graphics.lineTo(-15, 2);
-			graphics.lineTo(-25, 2);
-			graphics.drawEllipse(-30, -5, 5, 8);
+			graphics.lineTo( -25, 2);
+			//Nose
+			graphics.drawEllipse( -30, -5, 5, 8);
+			//Eyes
 			graphics.drawCircle(-10, -6, 1);
-			graphics.drawCircle(-4, -6, 1);
-			drawLine(-15, 5, 15, 5);
+			graphics.drawCircle( -4, -6, 1);
+			
+			graphics.beginFill(0x61A82A);
+			graphics.drawRect(-15, 5,30,13);
 			drawLine(-15, 10, 15, 10);
 			drawLine(-15, 15, 15, 15);
-			drawLine(-15, 5, 15, 5);
-		}
-		with (legs)
-		{
+		
 			drawLine(-10, 18, -10, 20);
 			drawLine(-2, 18, -2, 20);
 			drawLine(4, 18, 4, 20);
@@ -317,6 +322,10 @@ class Doodle extends Sprite
 			drawLine(-2, 20, -7, 20);
 			drawLine(4, 20, -1, 20);
 			drawLine(12, 20, 7, 20);
+			graphics.endFill();
+			
+		with (legs)
+		{
 			graphics.drawRect(-15, 18, 30, 2);
 		}
 	}
