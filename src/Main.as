@@ -81,7 +81,6 @@ package
 		
 		private function resetGame():void
 		{
-			
 			score = 0;
 			time = 0;
 			doodle.vVelocity = 0;
@@ -91,6 +90,7 @@ package
 			doodle.x = stage.stageWidth / 2;
 			doodle.y = stage.stageHeight - 100;
 			
+			sceneLayer.removeChildren();
 			stageStickArr = new Vector.<Stick>;
 			
 			stageStickArr.push(new NormalStick());
@@ -133,6 +133,8 @@ package
 		private function onKeyDown(e:KeyboardEvent):void
 		{
 			keyDictionary[e.keyCode] = true;
+			if (e.keyCode == Keyboard.R)
+				restart();
 		}
 		
 		private function onEnterFrame(e:Event):void
