@@ -4,6 +4,6 @@ It's a simple version: no powerups, no enemys, no sounds, and the blue stick is 
 
 You can learn some basic gaming logic from this project.
 
-control:
-	Left/Right-Move
-	R-Restart
+##Control
+* Left/Right：Move
+* R：Restart
